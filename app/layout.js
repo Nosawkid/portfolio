@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Roboto_Condensed } from "next/font/google";
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 const robotoCondensed = Roboto_Condensed({
   variable: "--font-roboto-condensed",
   subsets: ["latin"],
@@ -19,6 +19,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${robotoCondensed.variable}  antialiased min-h-screen`}
       >
+        <SpeedInsights />
         {children}
       </body>
     </html>
