@@ -36,7 +36,7 @@ const Projects = () => {
     {
       title: "League Sim",
       category: "Sports Tech",
-      desc: "A comprehensive Premier League simulator that uses historical data to predict match outcomes and league standings.",
+      desc: "A comprehensive Premier League simulator that let you simulate the premier league and see your favourite team win with detailed results.",
       tech: ["React.js"],
       img: "/soccer.png",
     },
