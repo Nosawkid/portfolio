@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import CardSwap, { Card } from "./ui/CardSwap";
 import Image from "next/image";
 
@@ -10,10 +10,10 @@ const Projects = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const checkMobile = () => setIsMobile(window.innerWidth < 1024); // Changed to 1024px to switch tablet/mobile to list view
+      const checkMobile = () => setIsMobile(window.innerWidth < 1024);
       checkMobile();
       window.addEventListener("resize", checkMobile);
-      setIsLoaded(true); // Prevent hydration mismatch
+      setIsLoaded(true);
       return () => window.removeEventListener("resize", checkMobile);
     }
   }, []);
@@ -34,45 +34,69 @@ const Projects = () => {
       img: "/omnitrix.png",
     },
     {
-      title: "League Sim",
-      category: "Sports Tech",
-      desc: "A comprehensive Premier League simulator that let you simulate the premier league and see your favourite team win with detailed results.",
-      tech: ["React.js"],
-      img: "/soccer.png",
+      title: "Orator",
+      category: "Productivity",
+      desc: "A smart teleprompter application designed for content creators, featuring secure authentication via Kinde.",
+      tech: ["Next.js", "Kinde Auth"],
+      img: "/orator.png",
+    },
+    {
+      title: "Querry",
+      category: "AI & Knowledge Base",
+      desc: "A MERN stack application allowing users to maintain a personal knowledge base and query it using the Gemini API.",
+      tech: ["MongoDB", "Express", "React", "Node.js", "Gemini API"],
+      img: "/querry.png",
+    },
+    {
+      title: "Catch the Snitch",
+      category: "Game Development",
+      desc: "An interactive Harry Potter themed game where players attempt to catch the Golden Snitch, featuring smooth GSAP animations.",
+      tech: ["React.js", "GSAP"],
+      img: "/catch.png",
+    },
+    {
+      title: "Habitat AI",
+      category: "Student Utility",
+      desc: "A platform for MSRIT students to compare PGs and food messes, utilizing NLP and the Gemini API for intelligent insights.",
+      tech: ["MongoDB", "Express", "React", "Node.js", "NLP", "Gemini API"],
+      img: "/habitat.png",
+    },
+    {
+      title: "Arcane",
+      category: "E-commerce (Frontend)",
+      desc: "A visually immersive Harry Potter wand shop interface built entirely with Next.js, focusing on frontend design and performance.",
+      tech: ["Next.js"],
+      img: "/arcane.png",
     },
   ];
 
-  if (!isLoaded) return null; // Avoid flash of wrong layout
+  // Stabilize the callback to prevent card stack resetting
+  const handleSwap = useCallback((newIndex) => {
+    setActiveProject(newIndex);
+  }, []);
+
+  if (!isLoaded) return null;
 
   return (
     <div className="bg-black w-full min-h-screen py-20 px-6 flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Shared Header */}
       <h1 className="text-4xl md:text-6xl text-white font-bold mb-16 z-20 text-center">
         Selected Works
       </h1>
 
-      {/* --- CONDITIONAL RENDERING --- */}
-
       {isMobile ? (
-        // ============================
-        // MOBILE / TABLET VIEW (Normal Column List)
-        // ============================
         <div className="w-full max-w-lg flex flex-col gap-16 z-20">
           {projects.map((project, index) => (
             <div key={index} className="flex flex-col gap-6">
-              {/* Image Card */}
-              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-neutral-900">
+              {/* CHANGED: aspect-[4/3] -> aspect-video (16:9) for wider look on mobile */}
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-neutral-900">
                 <Image
                   src={project.img}
                   alt={project.title}
                   fill
                   className="object-cover"
                 />
-                {/* Overlay Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
-
-              {/* Text Content */}
               <div className="text-center">
                 <span className="text-indigo-400 font-mono text-xs uppercase tracking-widest mb-2 block">
                   {project.category}
@@ -83,8 +107,6 @@ const Projects = () => {
                 <p className="text-gray-400 text-base leading-relaxed mb-4">
                   {project.desc}
                 </p>
-
-                {/* Tech Chips */}
                 <div className="flex flex-wrap justify-center gap-2">
                   {project.tech.map((t, i) => (
                     <span
@@ -100,14 +122,14 @@ const Projects = () => {
           ))}
         </div>
       ) : (
-        // ============================
-        // DESKTOP VIEW (CardSwap + Split Layout)
-        // ============================
-        <div className="w-full max-w-6xl mx-auto grid grid-cols-2 gap-12 items-center min-h-[600px]">
-          {/* LEFT: Dynamic Text */}
-          <div className="flex flex-col justify-center space-y-6 z-20 pointer-events-none text-left">
-            <div className="transition-all duration-500 ease-in-out">
-              <span className="text-indigo-400 font-mono tracking-widest text-sm uppercase mb-2 block animate-fade-in">
+        <div className="w-full max-w-7xl mx-auto grid grid-cols-2 gap-8 items-center min-h-[600px]">
+          {/* Left Text Column */}
+          <div className="flex flex-col justify-center space-y-6 z-20 pointer-events-none text-left pl-4">
+            <div
+              key={activeProject}
+              className="transition-all duration-500 ease-in-out animate-fade-in"
+            >
+              <span className="text-indigo-400 font-mono tracking-widest text-sm uppercase mb-2 block">
                 {projects[activeProject].category}
               </span>
 
@@ -132,20 +154,23 @@ const Projects = () => {
             </div>
           </div>
 
-          {/* RIGHT: 3D CardSwap */}
+          {/* Right Card Column */}
           <div className="relative h-[600px] w-full flex items-center justify-center">
             {/* Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none" />
 
             <CardSwap
+              // CHANGED: Wider Dimensions
+              width={600}
+              height={380}
+              // CHANGED: Slightly tighter spacing for wide cards
               cardDistance={40}
-              verticalDistance={40}
+              verticalDistance={30}
               delay={4000}
               pauseOnHover={false}
-              width={350}
-              height={500}
-              onSwap={(newIndex) => setActiveProject(newIndex)}
-              className="!absolute !bottom-0 !right-0 !translate-x-[5%] !translate-y-[10%]"
+              onSwap={handleSwap}
+              // CHANGED: Adjusted positioning to center the wide cards better
+              className="!absolute !bottom-0 !right-0 !translate-x-[-5%] !translate-y-[10%]"
             >
               {projects.map((project, index) => (
                 <Card
